@@ -9,6 +9,7 @@ class WatersortTests(unittest.TestCase):
 
         self.assertTrue(tube.is_full())
         self.assertFalse(tube.is_empty())
+        self.assertFalse(tube.is_complete())
         self.assertEqual(tube.peek(), 4)
         self.assertEqual(tube.pop(), 4)
         self.assertFalse(tube.is_full())
@@ -17,8 +18,10 @@ class WatersortTests(unittest.TestCase):
         self.assertEqual(tube.pop(), 2)
         self.assertEqual(tube.pop(), None)
         self.assertTrue(tube.is_empty())
+        self.assertTrue(tube.is_complete())
 
         tube.push(3)
+        self.assertFalse(tube.is_complete())
         self.assertFalse(tube.is_empty())
         self.assertFalse(tube.is_full())
         self.assertEqual(tube.peek(), 3)
@@ -32,6 +35,7 @@ class WatersortTests(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: tube.push(3))
 
         self.assertTrue(tube.is_full())
+        self.assertTrue(tube.is_complete())
 
         tube = watersort.Tube(0, [])
         self.assertEqual(tube.peek(), None)
@@ -45,6 +49,19 @@ class WatersortTests(unittest.TestCase):
         self.assertEqual(watersort.tube_dump(source, destination), 1)
         self.assertListEqual(destination.contents, [4])
         self.assertEqual(watersort.tube_dump(source, destination), 0)
+
+    def test_basic_level_01(self):
+        tubes = [
+            watersort.Tube(4, [1, 2, 1, 2]),
+            watersort.Tube(4, [2, 1, 2, 1]),
+            watersort.Tube(4, []),
+            watersort.Tube(4, [])
+        ]
+
+        level = watersort.Level(tubes)
+        moves = [x for x in level.possible_moves()]
+
+        self.assertListEqual(moves, [(0, 2), (0, 3), (1, 2), (1, 3)])
 
 
 if __name__ == '__main__':
