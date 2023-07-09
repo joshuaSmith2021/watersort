@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import List
 
 
@@ -102,6 +103,9 @@ class Level:
         '''
 
         for src in range(len(self.tubes)):
+            if self.tubes[src].is_complete():
+                continue
+
             for dest in range(len(self.tubes)):
                 if src == dest:
                     continue
@@ -114,6 +118,14 @@ class Level:
 
     def __str__(self) -> str:
         return str(self.tubes)
+
+    def dumps(self) -> str:
+        return json.dumps([x.to_csv() for x in self.tubes])
+
+    @staticmethod
+    def loads(string: str) -> Level:
+        tubes = [Tube.load_string(x) for x in json.loads(string)]
+        return Level(tubes)
 
 
 class Move:
@@ -132,66 +144,69 @@ class Move:
     __repr__ = __str__
 
 
-def undo_move(level: Level, move: Move):
-    src = move.src
-    dest = move.dest
-    n = move.n
+def dfs(puzzle: str):
+    stack = [puzzle]
+    discovered = set()
+    previous = {}
 
-    tubes = level.tubes
+    final_state = None
 
-    for _ in range(n):
-        tubes[src].push(tubes[dest].pop(), force=True)
+    while stack:
+        v = stack.pop()
 
+        if v not in discovered:
+            discovered.add(v)
+            level = Level.loads(v)
+            if level.is_complete():
+                final_state = (v, 0, 0, 0)
+                break
 
-def solve_level(level: Level, history: List[Move], prefix: str = ''):
-    moves = [x for x in level.possible_moves()]
-    i = 0
+            moves = [x for x in level.possible_moves()]
+            for src, dest in moves:
+                level = Level.loads(v)
+                n = tube_dump(level.tubes[src], level.tubes[dest])
 
-    print(level)
+                if level.dumps() not in discovered:
+                    stack.append(level.dumps())
+                    previous[level.dumps()] = (v, src, dest, n)
 
-    for src, dest in moves:
-        print(f'{prefix}{i + 1}/{len(moves)}')
-        if len(prefix) < 1:
-            input()
+    path = []
+    while final_state:
+        path.append(final_state)
+        final_state = previous.get(final_state[0], None)
 
-        n = tube_dump(level.tubes[src], level.tubes[dest])
-        history.append(Move(src, dest, n))
-
-        if level.is_complete():
-            print(history)
-            exit()
-
-        if len(history) < 15:
-            solve_level(level, history, prefix + '  ')
-
-        undo_move(level, history.pop())
-        i += 1
+    print('\n'.join(f'{x[1]} -> {x[2]} (n = {x[3]})' for x in path[::-1]))
 
 
 if __name__ == '__main__':
-    PURPLE = 0
-    PINK = 1
-    LIME = 2
-    GREEN = 3
-    BLUE = 4
-    GRAY = 5
-    RED = 6
-    ORANGE = 7
-    SKY = 8
+    SKY = 0
+    YELLOW = 1
+    ORANGE = 2
+    LIME = 3
+    OLIVE = 4
+    GREEN = 5
+    PURPLE = 6
+    RED = 7
+    BLUE = 8
+    GRAY = 9
+    PINK = 10
+    BROWN = 11
 
-    # Level 97
     level = Level([
-        Tube(4, [GREEN, LIME, PINK, PURPLE]),
-        Tube(4, [GRAY, GRAY, PINK, BLUE]),
-        Tube(4, [GREEN, ORANGE, PURPLE, RED]),
-        Tube(4, [GRAY, BLUE, SKY, BLUE]),
-        Tube(4, [BLUE, SKY, LIME, RED]),
-        Tube(4, [PINK, RED, ORANGE, SKY]),
-        Tube(4, [SKY, LIME, ORANGE, RED]),
-        Tube(4, [LIME, PINK, GRAY, GREEN]),
-        Tube(4, [PURPLE, GREEN, PURPLE, ORANGE]),
+        Tube(4, [LIME, ORANGE, YELLOW, SKY]),
+        Tube(4, [GREEN, YELLOW, OLIVE, SKY]),
+        Tube(4, [BLUE, RED, LIME, PURPLE]),
+        Tube(4, [GRAY, RED, SKY, YELLOW]),
+        Tube(4, [YELLOW, BLUE, PINK, GREEN]),
+        Tube(4, [OLIVE, BROWN, GREEN, BROWN]),
+        Tube(4, [RED, PURPLE, BLUE, BROWN]),
+        Tube(4, [BROWN, BLUE, PINK, PURPLE]),
+        Tube(4, [GRAY, LIME, PINK, GRAY]),
+        Tube(4, [SKY, OLIVE, LIME, ORANGE]),
+        Tube(4, [RED, PURPLE, GRAY, GREEN]),
+        Tube(4, [ORANGE, OLIVE, ORANGE, PINK]),
         Tube(4, []),
         Tube(4, [])
     ])
 
-    solve_level(level, [])
+    dfs(level.dumps())
