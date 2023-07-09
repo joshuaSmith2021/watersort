@@ -40,6 +40,9 @@ class Tube:
     def is_empty(self) -> bool:
         return len(self.contents) == 0
 
+    def is_homogenous(self) -> bool:
+        return len(set(self.contents)) == 1
+
     def is_complete(self) -> bool:
         return (self.is_empty()
                 or len(set(self.contents)) == 1
@@ -111,6 +114,10 @@ class Level:
                     continue
 
                 if move_possible(self.tubes[src], self.tubes[dest]):
+                    # Skip useless moves
+                    if self.tubes[src].is_homogenous() and self.tubes[dest].is_empty():
+                        continue
+
                     yield (src, dest)
 
     def is_complete(self) -> bool:
@@ -177,36 +184,3 @@ def dfs(puzzle: str):
 
     print('\n'.join(f'{x[1]} -> {x[2]} (n = {x[3]})' for x in path[::-1]))
 
-
-if __name__ == '__main__':
-    SKY = 0
-    YELLOW = 1
-    ORANGE = 2
-    LIME = 3
-    OLIVE = 4
-    GREEN = 5
-    PURPLE = 6
-    RED = 7
-    BLUE = 8
-    GRAY = 9
-    PINK = 10
-    BROWN = 11
-
-    level = Level([
-        Tube(4, [LIME, ORANGE, YELLOW, SKY]),
-        Tube(4, [GREEN, YELLOW, OLIVE, SKY]),
-        Tube(4, [BLUE, RED, LIME, PURPLE]),
-        Tube(4, [GRAY, RED, SKY, YELLOW]),
-        Tube(4, [YELLOW, BLUE, PINK, GREEN]),
-        Tube(4, [OLIVE, BROWN, GREEN, BROWN]),
-        Tube(4, [RED, PURPLE, BLUE, BROWN]),
-        Tube(4, [BROWN, BLUE, PINK, PURPLE]),
-        Tube(4, [GRAY, LIME, PINK, GRAY]),
-        Tube(4, [SKY, OLIVE, LIME, ORANGE]),
-        Tube(4, [RED, PURPLE, GRAY, GREEN]),
-        Tube(4, [ORANGE, OLIVE, ORANGE, PINK]),
-        Tube(4, []),
-        Tube(4, [])
-    ])
-
-    dfs(level.dumps())
