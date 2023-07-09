@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List
 
 
@@ -42,6 +44,25 @@ class Tube:
                 or len(set(self.contents)) == 1
                 and len(self.contents) == self.capacity)
 
+    def __str__(self) -> str:
+        return str(self.contents)
+
+    __repr__ = __str__
+
+    def to_csv(self) -> str:
+        copy = [x for x in self.contents]
+        while len(copy) < self.capacity:
+            copy.append('')
+
+        return ','.join(map(str, copy))
+
+    @staticmethod
+    def load_string(csv: str) -> Tube:
+        elements = csv.split(',')
+        stack = [int(x) for x in elements if x.isnumeric()]
+
+        return Tube(len(elements), stack)
+
 
 def move_possible(src: Tube, dest: Tube) -> bool:
     '''
@@ -80,13 +101,19 @@ class Level:
         is the source tube and index 1 the destination tube.
         '''
 
-        for src in range(len(self.tubes) - 1):
-            for dest in range(src + 1, len(self.tubes)):
+        for src in range(len(self.tubes)):
+            for dest in range(len(self.tubes)):
+                if src == dest:
+                    continue
+
                 if move_possible(self.tubes[src], self.tubes[dest]):
                     yield (src, dest)
 
     def is_complete(self) -> bool:
         return all(x.is_complete() for x in self.tubes)
+
+    def __str__(self) -> str:
+        return str(self.tubes)
 
 
 class Move:
@@ -116,16 +143,29 @@ def undo_move(level: Level, move: Move):
         tubes[src].push(tubes[dest].pop(), force=True)
 
 
-def solve_level(level: Level, history: List[Move]):
-    print(history)
+def solve_level(level: Level, history: List[Move], prefix: str = ''):
+    moves = [x for x in level.possible_moves()]
+    i = 0
 
-    for src, dest in level.possible_moves():
+    print(level)
+
+    for src, dest in moves:
+        print(f'{prefix}{i + 1}/{len(moves)}')
+        if len(prefix) < 1:
+            input()
+
         n = tube_dump(level.tubes[src], level.tubes[dest])
         history.append(Move(src, dest, n))
 
-        solve_level(level, history)
+        if level.is_complete():
+            print(history)
+            exit()
+
+        if len(history) < 15:
+            solve_level(level, history, prefix + '  ')
 
         undo_move(level, history.pop())
+        i += 1
 
 
 if __name__ == '__main__':
