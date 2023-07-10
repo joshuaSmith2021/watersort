@@ -182,5 +182,6 @@ def dfs(puzzle: str):
         path.append(final_state)
         final_state = previous.get(final_state[0], None)
 
-    print('\n'.join(f'{x[1]} -> {x[2]} (n = {x[3]})' for x in path[::-1]))
-
+    print('Directly below is the first move.')
+    print('\n'.join(f'{x[1] + 1} -> {x[2] + 1} (n = {x[3]})' for x in path[::-1]))
+    print('Directly above is the cube in it\'s completed state.')

@@ -17,18 +17,15 @@ if __name__ == '__main__':
     UNK = -1
 
     level = Level([
-        Tube(4, [SKY, SKY, GREEN, BLUE]),
-        Tube(4, [GRAY, OLIVE, PINK, PURPLE]),
-        Tube(4, [BROWN, RED, PURPLE, ORANGE]),
-        Tube(4, [ORANGE, RED, PINK, ORANGE]),
-        Tube(4, [BLUE, YELLOW, RED, GREEN]),
-        Tube(4, [GREEN, BROWN, GREEN, YELLOW]),
-        Tube(4, [LIME, RED, PURPLE, BROWN]),
-        Tube(4, [LIME, PINK, PURPLE, LIME]),
-        Tube(4, [BLUE, SKY, GRAY, OLIVE]),
-        Tube(4, [OLIVE, GRAY, YELLOW, BROWN]),
-        Tube(4, [BLUE, LIME, YELLOW, GRAY]),
-        Tube(4, [ORANGE, PINK, SKY, OLIVE]),
+        Tube(4, [LIME, RED, OLIVE, SKY]),
+        Tube(4, [PINK, OLIVE, SKY, SKY]),
+        Tube(4, [PURPLE, OLIVE, RED, RED]),
+        Tube(4, [GRAY, ORANGE, PINK, BLUE]),
+        Tube(4, [PURPLE, GRAY, RED, PINK]),
+        Tube(4, [BLUE, PURPLE, GRAY, LIME]),
+        Tube(4, [BLUE, OLIVE, PURPLE, ORANGE]),
+        Tube(4, [LIME, ORANGE, GRAY, ORANGE]),
+        Tube(4, [SKY, BLUE, LIME, PINK]),
         Tube(4, []),
         Tube(4, [])
     ])
